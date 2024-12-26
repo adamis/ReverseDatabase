@@ -10,12 +10,13 @@ import br.com.adamis.executions.responses.ForeignKeysResponse;
 import br.com.adamis.executions.responses.PrimaryKeyResponse;
 import br.com.adamis.executions.responses.TablesResponse;
 import br.com.adamis.utils.Utils;
+import lombok.NoArgsConstructor;
 
 public class WriteClass {
 
 	private Conexao conexao;
 
-	private List<String> importList = new ArrayList();
+	private List<String> importList = new ArrayList<String>();
 	private StaticSQL staticSQL;
 
 	List<String> listWrite;
@@ -136,7 +137,7 @@ public class WriteClass {
 				listWrite.add("    private BigDecimal " + Utils.normalizerStringCommomNotCap(tablesResponse.getColumnName()) + ";");
 				addImport("java.math.BigDecimal;");				
 				
-				System.out.println("Tipo Numérico detectado: " + tablesResponse.getDataType());
+				//System.out.println("Tipo Numérico detectado: " + tablesResponse.getDataType());
 				break;
 
 				// Tipos de Caracteres
@@ -146,7 +147,7 @@ public class WriteClass {
 			case "NVARCHAR2":
 				listWrite.add("    @Column(name = \"" + tablesResponse.getColumnName() + "\", length = " + tablesResponse.getDataLength() + ")");
 				listWrite.add("    private String " + Utils.normalizerStringCommomNotCap(tablesResponse.getColumnName()) + ";");
-				System.out.println("Tipo de Caracteres detectado: " + tablesResponse.getDataType());
+				//System.out.println("Tipo de Caracteres detectado: " + tablesResponse.getDataType());
 				break;
 
 				// Tipos LOB
@@ -156,7 +157,7 @@ public class WriteClass {
 				listWrite.add("    @Column(name = \"" + tablesResponse.getColumnName() + "\", columnDefinition = \"CLOB\")");
 				listWrite.add("    private String " + Utils.normalizerStringCommomNotCap(tablesResponse.getColumnName()) + ";");
 				addImport("jakarta.persistence.Lob;");
-				System.out.println("Tipo LOB detectado: " + tablesResponse.getDataType());
+				//System.out.println("Tipo LOB detectado: " + tablesResponse.getDataType());
 				break;
 			case "BLOB":
 			case "BFILE":
@@ -164,7 +165,7 @@ public class WriteClass {
 				listWrite.add("    @Column(name = \"" + tablesResponse.getColumnName() + "\", columnDefinition = \"BLOB\")");
 				listWrite.add("    private byte[] " + Utils.normalizerStringCommomNotCap(tablesResponse.getColumnName()) + ";");
 				addImport("jakarta.persistence.Lob;");
-				System.out.println("Tipo LOB detectado: " + tablesResponse.getDataType());
+				//System.out.println("Tipo LOB detectado: " + tablesResponse.getDataType());
 				break;
 
 				// Tipos de Datas
@@ -178,11 +179,21 @@ public class WriteClass {
 				addImport("jakarta.persistence.TemporalType;");
 				addImport("java.util.Date;");
 				
-				System.out.println("Tipo de Data detectado: " + tablesResponse.getDataType());
+				//System.out.println("Tipo de Data detectado: " + tablesResponse.getDataType());
 				break;
 				
 				// Tipos de Datas e Horários
 			case "TIMESTAMP":
+			case "TIMESTAMP(1)":
+			case "TIMESTAMP(2)":
+			case "TIMESTAMP(3)":
+			case "TIMESTAMP(4)":
+			case "TIMESTAMP(5)":
+			case "TIMESTAMP(6)":
+			case "TIMESTAMP(7)":
+			case "TIMESTAMP(8)":
+			case "TIMESTAMP(9)":
+			case "TIMESTAMP(10)":
 			case "TIMESTAMP WITH TIME ZONE":
 			case "TIMESTAMP WITH LOCAL TIME ZONE":
 			case "INTERVAL YEAR TO MONTH":
@@ -196,7 +207,7 @@ public class WriteClass {
 				addImport("jakarta.persistence.TemporalType;");
 				addImport("java.util.Calendar;");
 				
-				System.out.println("Tipo de Data/Hora detectado: " + tablesResponse.getDataType());
+				//System.out.println("Tipo de Data/Hora detectado: " + tablesResponse.getDataType());
 				break;
 
 				// Tipos Binários
@@ -204,7 +215,7 @@ public class WriteClass {
 			case "LONG RAW":
 				listWrite.add("    @Column(name = \"" + tablesResponse.getColumnName() + "\", columnDefinition = \"RAW\")");
 				listWrite.add("    private byte[] " + Utils.normalizerStringCommomNotCap(tablesResponse.getColumnName()) + ";");
-				System.out.println("Tipo Binário detectado: " + tablesResponse.getDataType());
+				//System.out.println("Tipo Binário detectado: " + tablesResponse.getDataType());
 				break;
 
 				// Tipos Especializados
@@ -212,19 +223,19 @@ public class WriteClass {
 			case "UROWID":
 				listWrite.add("    @Column(name = \"" + tablesResponse.getColumnName() + "\")");
 				listWrite.add("    private String " + Utils.normalizerStringCommomNotCap(tablesResponse.getColumnName()) + ";");
-				System.out.println("Tipo Especializado detectado: " + tablesResponse.getDataType());
+				//System.out.println("Tipo Especializado detectado: " + tablesResponse.getDataType());
 				break;
 			case "XMLTYPE":
 				listWrite.add("    @Column(name = \"" + tablesResponse.getColumnName() + "\", columnDefinition = \"XMLTYPE\")");
 				listWrite.add("    private String " + Utils.normalizerStringCommomNotCap(tablesResponse.getColumnName()) + ";");
-				System.out.println("Tipo Especializado detectado: " + tablesResponse.getDataType());
+				//System.out.println("Tipo Especializado detectado: " + tablesResponse.getDataType());
 				break;
 
 				// Tipos Obsoletos ou Legados
 			case "LONG":
 				listWrite.add("    @Column(name = \"" + tablesResponse.getColumnName() + "\", columnDefinition = \"LONG\")");
 				listWrite.add("    private String " + Utils.normalizerStringCommomNotCap(tablesResponse.getColumnName()) + ";");
-				System.out.println("Tipo Obsoleto detectado: " + tablesResponse.getDataType());
+				//System.out.println("Tipo Obsoleto detectado: " + tablesResponse.getDataType());
 				break;
 
 				// Tipos Desconhecidos ou Não Mapeados
@@ -318,6 +329,9 @@ public class WriteClass {
 
 		listWrite.add("@Data");
 		addImport("lombok.Data;");	
+		
+		listWrite.add("@NoArgsConstructor");
+		addImport("lombok.NoArgsConstructor;");
 
 	}
 
