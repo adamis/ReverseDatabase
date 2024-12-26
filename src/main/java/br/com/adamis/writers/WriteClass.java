@@ -39,7 +39,7 @@ public class WriteClass {
 		listWrite.add("{import}");//IMPORT
 
 		//Monta as anotações da entity
-		montaEntityAnotation(montaNameClasse, listWrite);
+		montaEntityAnotation(table, listWrite);
 
 		//Monta a nomeclatura da Classe
 		montaNomeclaturaClasse(montaNameClasse);
@@ -307,13 +307,13 @@ public class WriteClass {
 	 * @param montaNameClasse
 	 * @param listWrite
 	 */
-	private void montaEntityAnotation(String montaNameClasse, List<String> listWrite) {
+	private void montaEntityAnotation(String table, List<String> listWrite) {
 		listWrite.add("");
 
 		listWrite.add("@Entity");
 		addImport("jakarta.persistence.Entity;");
 
-		listWrite.add("@Table(name = \""+montaNameClasse+"\")");
+		listWrite.add("@Table(name = \""+table+"\")");
 		addImport("jakarta.persistence.Table;");
 
 		listWrite.add("@Data");
