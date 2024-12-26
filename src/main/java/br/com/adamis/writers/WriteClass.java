@@ -324,7 +324,7 @@ public class WriteClass {
 		listWrite.add("@Entity");
 		addImport("jakarta.persistence.Entity;");
 
-		listWrite.add("@Table(name = \""+table+"\")");
+		listWrite.add("@Table(name = \""+table+"\""+addIndices(table)+")");
 		addImport("jakarta.persistence.Table;");
 
 		listWrite.add("@Data");
@@ -333,6 +333,16 @@ public class WriteClass {
 		listWrite.add("@NoArgsConstructor");
 		addImport("lombok.NoArgsConstructor;");
 
+	}
+
+	/**
+	 * Adiciona os indices no JPA anotation
+	 * @param table
+	 * @return
+	 */
+	private String addIndices(String table) {
+		
+		return null;
 	}
 
 	/**
