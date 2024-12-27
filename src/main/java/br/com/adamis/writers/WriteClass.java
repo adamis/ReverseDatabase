@@ -1,16 +1,25 @@
 package br.com.adamis.writers;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
 
 import br.com.adamis.conexao.Conexao;
 import br.com.adamis.executions.StaticSQL;
 import br.com.adamis.executions.responses.ForeignKeysResponse;
+import br.com.adamis.executions.responses.IndicesResponse;
 import br.com.adamis.executions.responses.PrimaryKeyResponse;
 import br.com.adamis.executions.responses.TablesResponse;
 import br.com.adamis.utils.Utils;
-import lombok.NoArgsConstructor;
 
 public class WriteClass {
 
@@ -58,11 +67,42 @@ public class WriteClass {
 			replaceImports();			
 			listWrite.add("");//Pula Linha
 			listWrite.add("}");//Fim da Classe
-			writeClasse(path+(path.endsWith("\\")?"":File.separator)+montaNameClasse+".java", listWrite);
+			String pathFile = path+(path.endsWith("\\")?"":File.separator)+montaNameClasse+".java";
+			writeClasse(pathFile, listWrite);
+			//organizaImport(pathFile);
+			
 		} catch (Exception e) {		
 			e.printStackTrace();
 		}
 
+	}
+
+	private void organizaImport(String pathFile) throws IOException {
+		
+		 // Ler o arquivo para um CompilationUnit
+        CompilationUnit compilationUnit = StaticJavaParser.parse(new File(pathFile));
+
+        // Obter todos os imports
+        List<ImportDeclaration> imports = compilationUnit.getImports();
+
+        for (int i = 0; i < imports.size(); i++) {
+			System.err.println(""+imports.get(i));
+		}
+        
+        // Ordenar os imports em ordem alfabética
+        imports.sort((a, b) -> a.getNameAsString().compareTo(b.getNameAsString()));
+
+        // Remover todos os imports existentes no CompilationUnit
+        compilationUnit.getImports().clear();
+
+        // Adicionar os imports ordenados de volta ao CompilationUnit
+        imports.forEach(compilationUnit::addImport);
+
+        // Salvar o resultado de volta no arquivo
+        Files.write(Paths.get(pathFile), compilationUnit.toString().getBytes());
+
+        System.out.println("Imports organizados em ordem alfabética com sucesso!");
+    
 	}
 
 	private void montaFks(String table) {
@@ -342,7 +382,25 @@ public class WriteClass {
 	 */
 	private String addIndices(String table) {
 		
-		return null;
+		StringBuilder sb = new StringBuilder();
+		
+		List<IndicesResponse> listIndices = staticSQL.listIndexes(table);
+		if(listIndices.size() > 0) {
+			addImport("jakarta.persistence.Index;");
+			
+			sb.append(", indexes = {");
+			
+			for (int i = 0; i < listIndices.size(); i++) {
+				if(i > 0) {
+					sb.append(", ");
+				}
+				IndicesResponse indicesResponse = listIndices.get(i);
+				sb.append("@Index(name = \""+indicesResponse.getIndexName()+"\", columnList = \""+indicesResponse.getColumnName()+"\", unique = "+indicesResponse.getIsUnique()+")");	
+			}		
+			
+			sb.append("}");
+		}
+		return sb.toString();
 	}
 
 	/**

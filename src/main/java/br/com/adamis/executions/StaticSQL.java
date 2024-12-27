@@ -10,6 +10,7 @@ import java.util.List;
 
 import br.com.adamis.conexao.Conexao;
 import br.com.adamis.executions.responses.ForeignKeysResponse;
+import br.com.adamis.executions.responses.IndicesResponse;
 import br.com.adamis.executions.responses.PrimaryKeyResponse;
 import br.com.adamis.executions.responses.TablesResponse;
 
@@ -225,5 +226,65 @@ public class StaticSQL {
 	    return foreignKeys;
 	}
 
+	
+	public List<IndicesResponse> listIndexes(String tableName) {
+	    List<IndicesResponse> indexes = new ArrayList<>();
+
+	    String query = "SELECT " +
+                "    ui.INDEX_NAME, " +
+                "    ui.INDEX_TYPE, " +
+                "    CASE ui.UNIQUENESS " +
+                "        WHEN 'UNIQUE' THEN 'TRUE' " +
+                "        ELSE 'FALSE' " +
+                "    END AS IS_UNIQUE, " +
+                "    ui.TABLE_NAME, " +
+                "    ui.STATUS AS INDEX_STATUS, " +
+                "    uic.COLUMN_NAME, " +
+                "    uic.COLUMN_POSITION, " +
+                "    uic.DESCEND " +
+                "FROM USER_INDEXES ui " +
+                "JOIN USER_IND_COLUMNS uic " +
+                "ON ui.INDEX_NAME = uic.INDEX_NAME " +
+                "LEFT JOIN USER_CONSTRAINTS uc " +
+                "ON ui.INDEX_NAME = uc.INDEX_NAME " +
+                "WHERE ui.TABLE_NAME = '" + tableName.toUpperCase() + "' " +
+                "  AND (uc.CONSTRAINT_TYPE IS NULL OR uc.CONSTRAINT_TYPE != 'P') " +
+                "ORDER BY ui.INDEX_NAME, uic.COLUMN_POSITION";
+
+	    try {
+	        ResultSet resultSet = conexao.executeQuery(query);
+
+	        while (resultSet.next()) {
+	            String indexName = resultSet.getString("INDEX_NAME");
+	            String indexType = resultSet.getString("INDEX_TYPE");
+	            Boolean isUnique = resultSet.getString("IS_UNIQUE").equals("TRUE");
+	            String tableOrigemName = resultSet.getString("TABLE_NAME");
+	            String indexStatus = resultSet.getString("INDEX_STATUS");
+	            String columnName = resultSet.getString("COLUMN_NAME");
+	            Integer columnPosition = resultSet.getInt("COLUMN_POSITION");
+	            String descend = resultSet.getString("DESCEND");
+
+	            IndicesResponse indicesResponse = new IndicesResponse(
+	                    tableOrigemName,
+	                    indexName,
+	                    indexType,
+	                    isUnique,
+	                    indexStatus,
+	                    columnName,
+	                    columnPosition,
+	                    descend
+	            );
+
+	            indexes.add(indicesResponse);
+	        }
+	    } catch (Exception e) {
+	        System.err.println("Error while listing indexes: " + e.getMessage());
+	        e.printStackTrace();
+	    }
+
+	    return indexes;
+	}
+
+	
 
 }
